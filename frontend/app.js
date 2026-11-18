@@ -230,7 +230,13 @@ async function checkIn() {
 
 $("connectBtn").addEventListener("click", () => connect().catch((e) => {
   console.error(e);
-  $("accountLabel").textContent = "Connection failed: " + (e && e.message ? e.message : e);
+  const raw = e && e.message ? String(e.message) : "";
+  const infoCode = e && e.info && e.info.error && e.info.error.code;
+  if (raw.toLowerCase().includes("at least one account") || infoCode === 4001 || (e && e.code === "ACTION_REJECTED")) {
+    $("accountLabel").textContent = "Wallet didn't return an account. Unlock your wallet, select an account, approve the connection request, then try again. If several wallet extensions are installed, keep only one enabled.";
+  } else {
+    $("accountLabel").textContent = "Connection failed. Make sure your wallet is unlocked, then try again (details in console).";
+  }
 }));
 $("switchBtn").addEventListener("click", () => switchNetwork().catch((e) => {
   console.error(e);
