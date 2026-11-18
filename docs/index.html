@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentStreak — Daily check-in for Agent ID holders</title>
+<style>
+  :root { --bg:#0f1115; --card:#1a1d24; --line:#2a2e38; --text:#e8eaf0; --muted:#9aa0ae; --accent:#f0b90b; --good:#2ebd85; --bad:#f6465d; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); }
+  header { padding:20px 16px 8px; max-width:860px; margin:0 auto; }
+  h1 { margin:0; font-size:28px; }
+  h1 span { color:var(--accent); }
+  p.sub { color:var(--muted); margin:6px 0 0; }
+  main { max-width:860px; margin:0 auto; padding:16px; display:grid; gap:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  button { background:var(--accent); color:#111; border:0; border-radius:8px; padding:12px 20px; font-size:16px; font-weight:700; cursor:pointer; }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  button.ghost { background:transparent; color:var(--text); border:1px solid var(--line); }
+  .stat { flex:1 1 120px; background:#12141a; border:1px solid var(--line); border-radius:10px; padding:12px; text-align:center; }
+  .stat b { display:block; font-size:24px; }
+  .stat span { color:var(--muted); font-size:13px; }
+  .pill { display:inline-block; padding:4px 10px; border-radius:999px; font-size:13px; font-weight:600; }
+  .pill.good { background:rgba(46,189,133,.15); color:var(--good); }
+  .pill.bad { background:rgba(246,70,93,.15); color:var(--bad); }
+  .pill.idle { background:#262a33; color:var(--muted); }
+  .mono { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; word-break:break-all; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-weight:600; }
+  .muted { color:var(--muted); }
+  .notice { border:1px solid var(--accent); border-radius:10px; padding:12px; background:rgba(240,185,11,.08); }
+  footer { max-width:860px; margin:0 auto; padding:8px 16px 32px; color:var(--muted); font-size:13px; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Agent<span>Streak</span></h1>
+  <p class="sub">A daily check-in for Agent ID holders, on BNB Chain. Check in once per UTC day and build your streak. Gas only — no fees, no tokens, no rewards.</p>
+</header>
+<main>
+  <div class="card">
+    <div class="row">
+      <button id="connectBtn">Connect wallet</button>
+      <span id="accountLabel" class="mono muted">Not connected</span>
+      <span id="networkPill" class="pill idle">Network: —</span>
+    </div>
+    <div id="deployNotice" class="notice" style="display:none;margin-top:14px;">
+      The AgentStreak contract is not deployed yet. This page will go live once the contract address is configured.
+    </div>
+    <div id="switchBox" style="display:none;margin-top:14px;">
+      <p class="muted">You are on the wrong network. AgentStreak runs on BNB Chain (chain ID 56).</p>
+      <button id="switchBtn" class="ghost">Switch to BNB Chain</button>
+    </div>
+  </div>
+
+  <div class="card" id="statusCard" style="display:none;">
+    <div class="row">
+      <span>Agent ID status:</span>
+      <span id="holderPill" class="pill idle">Checking…</span>
+    </div>
+    <p id="holderNote" class="muted"></p>
+    <div class="row" style="margin-top:12px;">
+      <div class="stat"><b id="statStreak">—</b><span>Current streak</span></div>
+      <div class="stat"><b id="statLongest">—</b><span>Longest streak</span></div>
+      <div class="stat"><b id="statTotal">—</b><span>Your check-ins</span></div>
+      <div class="stat"><b id="statGlobal">—</b><span>All check-ins</span></div>
+    </div>
+    <div style="margin-top:16px;">
+      <button id="checkinBtn" disabled>Check in for today</button>
+      <span id="checkinStatus" class="muted" style="margin-left:10px;"></span>
+    </div>
+    <p class="muted" style="margin-bottom:0;">Check-ins cost network gas only. Your wallet will ask you to confirm the transaction — nothing is ever sent without your confirmation.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin:0 0 8px;font-size:18px;">Leaderboard</h2>
+    <p class="muted" style="margin-top:0;">Ranked by longest streak. Built from on-chain check-in events.</p>
+    <div id="leaderboard"><p class="muted">Loading…</p></div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin:0 0 8px;font-size:18px;">Recent check-ins</h2>
+    <div id="recent"><p class="muted">Loading…</p></div>
+  </div>
+</main>
+<footer>
+  <p>AgentStreak is an independent community project. It is not affiliated with or endorsed by any wallet or exchange. Streaks are on-chain records only — they carry no monetary value and no returns are promised. This page never asks for seed phrases, private keys, or passwords. Always confirm transactions in your own wallet.</p>
+  <p>Contract: <span id="contractLabel" class="mono">not deployed yet</span> · <a id="bscscanLink" href="#" target="_blank" rel="noopener" style="display:none;">View on BscScan</a></p>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

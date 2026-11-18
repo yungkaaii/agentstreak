@@ -8,8 +8,8 @@
 /* ================= CONFIG — fill in after deployment ================= */
 // TODO(DEPLOY): paste the deployed AgentStreak contract address here.
 const CONFIG = {
-  contractAddress: "", // e.g. "0x..." — leave empty until deployed
-  deployBlock: 0, // first block to scan for events; set to the deployment block after deploy
+  contractAddress: "0x39463962cCE2D0b61999775A620237372c5fD842", // deployed 18 Nov 2026, block 134307264
+  deployBlock: 134307264, // first block to scan for events; set to the deployment block after deploy
   registryAddress: "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F",
   chainId: 56, // BNB Chain mainnet
   rpcUrl: "https://bsc-rpc.publicnode.com", // read-only fallback for leaderboard/recent
